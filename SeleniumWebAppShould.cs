@@ -8,9 +8,10 @@ namespace Selenium.UITests
     public class SeleniumWebAppShould
     {
 
-        private const string HomeUrl = "https://allegro.pl/";
-        private const string AboutUrl = "https://about.allegro.eu/";
-        private const string HomeTitle = "Allegro - atrakcyjne ceny";
+        private const string HomeUrl = "https://www.timeanddate.com/";
+        private const string AboutUrl = "https://www.timeanddate.com/company/";
+        private const string HomeTitle = "timeanddate.com";
+
         [Fact]
         [Trait("Category", "Smoke")]
         public void LoadApplicationPage()
@@ -50,8 +51,12 @@ namespace Selenium.UITests
         public void ReloadHomePageOnBack()
         {
             using (IWebDriver driver = new ChromeDriver())
+            
             {
                 driver.Navigate().GoToUrl(HomeUrl);
+                IWebElement seconds =
+                    driver.FindElement(By.Id("ij0"));
+                string secondsString = seconds.Text;
                 DemoHelper.Pause();
 
                 driver.Navigate().GoToUrl(AboutUrl);
@@ -63,7 +68,8 @@ namespace Selenium.UITests
                 Assert.Equal(HomeTitle, driver.Title);
                 Assert.Equal(HomeUrl, driver.Url);
 
-                //TODO: assert that page was reloaded
+                string reloadedSeconds = driver.FindElement(By.Id("ij0")).Text;
+                Assert.NotEqual(secondsString, reloadedSeconds);
             }
         }
 
@@ -77,6 +83,9 @@ namespace Selenium.UITests
                 DemoHelper.Pause();
 
                 driver.Navigate().GoToUrl(HomeUrl);
+                IWebElement seconds =
+                    driver.FindElement(By.Id("ij0"));
+                string secondsString = seconds.Text;
                 DemoHelper.Pause();
 
                 driver.Navigate().Back();
@@ -88,7 +97,8 @@ namespace Selenium.UITests
                 Assert.Equal(HomeTitle, driver.Title);
                 Assert.Equal(HomeUrl, driver.Url);
 
-                //TODO: assert that page was reloaded
+                string reloadedSeconds = driver.FindElement(By.Id("ij0")).Text;
+                Assert.NotEqual(secondsString, reloadedSeconds);
             }
         }
     }

@@ -4,7 +4,7 @@ namespace Selenium.UITests
 {
     internal class DemoHelper
     {
-        public static void Pause(int secondsToPause = 3000)
+        public static void Pause(int secondsToPause = 7000)
         {
             Thread.Sleep(secondsToPause);
         }
