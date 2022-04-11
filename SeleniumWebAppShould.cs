@@ -10,6 +10,7 @@ namespace Selenium.UITests
 
         private const string HomeUrl = "https://www.timeanddate.com/";
         private const string AboutUrl = "https://www.timeanddate.com/company/";
+        private const string AstronomyUrl = "https://www.timeanddate.com/astronomy/";
         private const string HomeTitle = "timeanddate.com";
 
         [Fact]
@@ -99,6 +100,30 @@ namespace Selenium.UITests
 
                 string reloadedSeconds = driver.FindElement(By.Id("ij0")).Text;
                 Assert.NotEqual(secondsString, reloadedSeconds);
+            }
+        }
+
+        [Fact]
+        public void BeInitiatedFromHomePage_Weather()
+        { 
+            using (IWebDriver driver = new ChromeDriver())
+            {
+                driver.Navigate().GoToUrl(HomeUrl);
+                DemoHelper.Pause();
+
+                IWebElement weatherNext =
+                    driver.FindElement(By.CssSelector("#main-content > div.main-content-div > div.fixed > div.row > div.four.columns.c-sm > h2 > a"));
+                weatherNext.Click();
+                DemoHelper.Pause(1000); // allow page to open
+                weatherNext.Click();
+                DemoHelper.Pause(1000); // allow page to open
+
+                IWebElement applyLink = driver.FindElement(By.ClassName("t-sq"));
+                applyLink.Click();
+                DemoHelper.Pause();
+
+                Assert.Equal("Astronomy - Sun - Moon - Eclipses", driver.Title);
+                Assert.Equal(AstronomyUrl, driver.Url);
             }
         }
     }
