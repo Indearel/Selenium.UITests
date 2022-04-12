@@ -2,6 +2,7 @@
 using Xunit;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Support.UI;
 
 namespace Selenium.UITests
 {
@@ -11,6 +12,7 @@ namespace Selenium.UITests
         private const string HomeUrl = "https://www.timeanddate.com/";
         private const string AboutUrl = "https://www.timeanddate.com/company/";
         private const string AstronomyUrl = "https://www.timeanddate.com/astronomy/";
+        private const string EventsUrl = "https://www.timeanddate.com/calendar/events/";
         private const string HomeTitle = "timeanddate.com";
 
         [Fact]
@@ -114,10 +116,6 @@ namespace Selenium.UITests
                 IWebElement weatherNext =
                     driver.FindElement(By.CssSelector("#main-content > div.main-content-div > div.fixed > div.row > div.four.columns.c-sm > h2 > a"));
                 weatherNext.Click();
-                DemoHelper.Pause(1000); // allow page to open
-                weatherNext.Click();
-                DemoHelper.Pause(1000); // allow page to open
-
                 IWebElement applyLink = driver.FindElement(By.ClassName("t-sq"));
                 applyLink.Click();
                 DemoHelper.Pause();
@@ -126,5 +124,32 @@ namespace Selenium.UITests
                 Assert.Equal(AstronomyUrl, driver.Url);
             }
         }
+
+        [Fact]
+
+        public void BeInitiatedFormHomePage_Random()
+        {
+            using (IWebDriver driver = new ChromeDriver())
+
+            {
+                driver.Navigate().GoToUrl(HomeUrl);
+                DemoHelper.Pause();
+
+                IWebElement randomLink =
+                    driver.FindElement(By.PartialLinkText("Add Events"));
+                randomLink.Click();
+                   
+                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+                IWebElement addEventsLink =
+                    wait.Until((d) => d.FindElement(By.PartialLinkText("Add Events")));
+                addEventsLink.Click();
+
+                DemoHelper.Pause();
+
+                Assert.Equal("Add your own Calendar Events", driver.Title);
+                Assert.Equal(EventsUrl, driver.Url);
+            }
+        }
+
     }
 }
