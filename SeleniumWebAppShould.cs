@@ -26,7 +26,7 @@ namespace Selenium.UITests
                            driver.FindElement(By.CssSelector("#qc-cmp2-ui > div.qc-cmp2-footer.qc-cmp2-footer-overlay.qc-cmp2-footer-scrolled > div > button.css-47sehv"));
             }
         }
-       
+
         private readonly ITestOutputHelper output;
 
         public SeleniumWebAppShould(ITestOutputHelper output)
@@ -73,7 +73,7 @@ namespace Selenium.UITests
         public void ReloadHomePageOnBack()
         {
             using (IWebDriver driver = new ChromeDriver())
-            
+
             {
                 driver.Navigate().GoToUrl(HomeUrl);
                 IWebElement seconds =
@@ -126,7 +126,7 @@ namespace Selenium.UITests
 
         [Fact]
         public void BeInitiatedFromHomePage_Astronomy()
-        { 
+        {
             using (IWebDriver driver = new ChromeDriver())
             {
                 driver.Navigate().GoToUrl(HomeUrl);
@@ -232,13 +232,99 @@ namespace Selenium.UITests
                 cookieAgree.Click();
 
                 IWebElement apps = driver.FindElement(By.CssSelector("#main-content > div.main-content-div > div.fixed > div.row > div.four.columns.c-ap > h2 > a"));
-                    apps.Click();
+                apps.Click();
 
-                ReadOnlyCollection <IWebElement> appsNames = driver.FindElements(By.ClassName("card__title"));
+                ReadOnlyCollection<IWebElement> appsNames = driver.FindElements(By.ClassName("card__title"));
 
                 Assert.Equal("World Clock App for iOS", appsNames[0].Text);
                 Assert.Equal("Time & Date Calculator App for iOS", appsNames[1].Text);
 
+            }
+        }
+
+        [Fact]
+        public void FillTheForm()
+        {
+            using (IWebDriver driver = new ChromeDriver())
+            {
+                driver.Navigate().GoToUrl(HomeUrl);
+                DemoHelper.Pause();
+
+                IWebElement cookieAgree =
+                           driver.FindElement(By.CssSelector("#qc-cmp2-ui > div.qc-cmp2-footer.qc-cmp2-footer-overlay.qc-cmp2-footer-scrolled > div > button.css-47sehv"));
+                cookieAgree.Click();
+
+                IWebElement accounts =
+                           driver.FindElement(By.CssSelector("#HS > div > div > a:nth-child(6)"));
+                accounts.Click();
+
+                IWebElement register =
+                           driver.FindElement(By.CssSelector("#article-fixed > div > section.article__body.article__body--right > div > p:nth-child(3) > a.button.blue.large"));
+                register.Click();
+
+                driver.FindElement(By.Name("fullname")).SendKeys("Juusto");
+
+                driver.FindElement(By.Name("email")).SendKeys("juusto1986@gmail.ocom");
+
+                driver.FindElement(By.Name("password")).SendKeys("Puhekieli19*");
+
+                driver.FindElement(By.Name("password1")).SendKeys("Puhekieli19*");
+
+                DemoHelper.Pause(5000);
+
+                // Submit by element
+                driver.FindElement(By.Name("fullname")).Submit();
+
+                Assert.StartsWith("Customize and personalize timeanddate.com", driver.Title);
+            }
+        }
+
+        [Fact]
+        public void ChooseRadioButton()
+        {
+            using (IWebDriver driver = new ChromeDriver())
+            {
+                driver.Navigate().GoToUrl(HomeUrl);
+                DemoHelper.Pause();
+
+                IWebElement cookieAgree =
+                           driver.FindElement(By.CssSelector("#qc-cmp2-ui > div.qc-cmp2-footer.qc-cmp2-footer-overlay.qc-cmp2-footer-scrolled > div > button.css-47sehv"));
+                cookieAgree.Click();
+
+                driver.FindElement(By.CssSelector("#cf > div:nth-child(2) > label > input[type=radio]")).Click(); ;
+
+                DemoHelper.Pause(5000);
+            }
+        }
+
+        [Fact]
+        public void ChooseCountryFromTheSliderList()
+        {
+            using (IWebDriver driver = new ChromeDriver())
+            {
+                driver.Navigate().GoToUrl(HomeUrl);
+                DemoHelper.Pause();
+
+                IWebElement cookieAgree =
+                           driver.FindElement(By.CssSelector("#qc-cmp2-ui > div.qc-cmp2-footer.qc-cmp2-footer-overlay.qc-cmp2-footer-scrolled > div > button.css-47sehv"));
+                cookieAgree.Click();
+
+                IWebElement countrySlider =
+                    driver.FindElement(By.Id("country"));
+                SelectElement country = new SelectElement(countrySlider);
+                Assert.Equal("Poland", country.SelectedOption.Text);
+
+                // Get all the available options
+                foreach(IWebElement option in country.Options)                                                       
+                { 
+                    output.WriteLine($"Value: {option.GetAttribute("value")} Text: {option.Text}");
+                }
+
+                // Select an option
+                country.SelectByText("Finland");
+                DemoHelper.Pause();
+                country.SelectByValue("32");
+                DemoHelper.Pause();
             }
         }
     }
