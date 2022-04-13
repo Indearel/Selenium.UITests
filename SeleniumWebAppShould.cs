@@ -4,6 +4,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 using Xunit.Abstractions;
+using System.Collections.ObjectModel;
 
 namespace Selenium.UITests
 {
@@ -16,6 +17,16 @@ namespace Selenium.UITests
         private const string EventsUrl = "https://www.timeanddate.com/calendar/events/";
         private const string HomeTitle = "timeanddate.com";
 
+        [Fact]
+        public void cookieLink()
+        {
+            using (IWebDriver driver = new ChromeDriver())
+            {
+                IWebElement cookieAgree =
+                           driver.FindElement(By.CssSelector("#qc-cmp2-ui > div.qc-cmp2-footer.qc-cmp2-footer-overlay.qc-cmp2-footer-scrolled > div > button.css-47sehv"));
+            }
+        }
+       
         private readonly ITestOutputHelper output;
 
         public SeleniumWebAppShould(ITestOutputHelper output)
@@ -121,6 +132,10 @@ namespace Selenium.UITests
                 driver.Navigate().GoToUrl(HomeUrl);
                 DemoHelper.Pause();
 
+                IWebElement cookieAgree =
+                           driver.FindElement(By.CssSelector("#qc-cmp2-ui > div.qc-cmp2-footer.qc-cmp2-footer-overlay.qc-cmp2-footer-scrolled > div > button.css-47sehv"));
+                cookieAgree.Click();
+
                 IWebElement sunAndMoon =
                     driver.FindElement(By.Name("Sunrise, sunset, moonrise, moonset, eclipse, equinoxes, solstices and moon phases"));
                 sunAndMoon.Click();
@@ -142,6 +157,10 @@ namespace Selenium.UITests
                 driver.Navigate().GoToUrl(HomeUrl);
                 DemoHelper.Pause();
 
+                IWebElement cookieAgree =
+                           driver.FindElement(By.CssSelector("#qc-cmp2-ui > div.qc-cmp2-footer.qc-cmp2-footer-overlay.qc-cmp2-footer-scrolled > div > button.css-47sehv"));
+                cookieAgree.Click();
+
                 WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
                 IWebElement addEventsLink =
                     wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.LinkText("Add Events")));
@@ -161,21 +180,33 @@ namespace Selenium.UITests
             using (IWebDriver driver = new ChromeDriver())
 
             {
-                output.WriteLine($"{DateTime.Now.ToLongTimeString()} Setting implicit wait");
-                driver.Manage().Timeouts().ImplicitWait = new TimeSpan(35);
-
                 output.WriteLine($"{DateTime.Now.ToLongTimeString()} Navigating to '{HomeUrl}'");
                 driver.Navigate().GoToUrl(HomeUrl);
 
-                output.WriteLine($"{DateTime.Now.ToLongTimeString()} Finding element");
+                IWebElement cookieAgree =
+                           driver.FindElement(By.CssSelector("#qc-cmp2-ui > div.qc-cmp2-footer.qc-cmp2-footer-overlay.qc-cmp2-footer-scrolled > div > button.css-47sehv"));
+                cookieAgree.Click();
 
-                //IWebElement randomLink =
-                //    driver.FindElement(By.PartialLinkText("Add Events"));
-                //randomLink.Click();
-
+                output.WriteLine($"{DateTime.Now.ToLongTimeString()} Finding element using explicit wait");
                 WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+
+                Func<IWebDriver, IWebElement> findEnabledAndVisible = delegate (IWebDriver d)
+                {
+                    var e = d.FindElement(By.PartialLinkText("Add Events"));
+                    if (e is null)
+                    {
+                        throw new NotFoundException();
+                    }
+
+                    if (e.Enabled && e.Displayed)
+                    {
+                        return e;
+                    }
+                    throw new NotFoundException();
+                };
+
                 IWebElement addEventsLink =
-                    wait.Until((d) => d.FindElement(By.PartialLinkText("Add Events")));
+                    wait.Until(findEnabledAndVisible);
 
                 output.WriteLine($"{DateTime.Now.ToLongTimeString()} Found element Displayed={addEventsLink.Displayed} Enabled={addEventsLink.Enabled}");
                 output.WriteLine($"{DateTime.Now.ToLongTimeString()} Clicking element");
@@ -188,5 +219,27 @@ namespace Selenium.UITests
             }
         }
 
+        [Fact]
+        public void DisplayApps()
+        {
+            using (IWebDriver driver = new ChromeDriver())
+            {
+                driver.Navigate().GoToUrl(HomeUrl);
+                DemoHelper.Pause();
+
+                IWebElement cookieAgree =
+                           driver.FindElement(By.CssSelector("#qc-cmp2-ui > div.qc-cmp2-footer.qc-cmp2-footer-overlay.qc-cmp2-footer-scrolled > div > button.css-47sehv"));
+                cookieAgree.Click();
+
+                IWebElement apps = driver.FindElement(By.CssSelector("#main-content > div.main-content-div > div.fixed > div.row > div.four.columns.c-ap > h2 > a"));
+                    apps.Click();
+
+                ReadOnlyCollection <IWebElement> appsNames = driver.FindElements(By.ClassName("card__title"));
+
+                Assert.Equal("World Clock App for iOS", appsNames[0].Text);
+                Assert.Equal("Time & Date Calculator App for iOS", appsNames[1].Text);
+
+            }
+        }
     }
 }

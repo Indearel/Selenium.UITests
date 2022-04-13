@@ -19,7 +19,10 @@ namespace Selenium.UITests
             {
                 driver.Navigate().GoToUrl(HomeUrl);
                 DemoHelper.Pause();
-                driver.Manage().Cookies.DeleteAllCookies();
+
+                IWebElement cookieAgree =
+                           driver.FindElement(By.CssSelector("#qc-cmp2-ui > div.qc-cmp2-footer.qc-cmp2-footer-overlay.qc-cmp2-footer-scrolled > div > button.css-47sehv"));
+                cookieAgree.Click();
 
                 IWebElement createLink = driver.FindElement(By.LinkText("Create a Calendar"));
                 driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
