@@ -3,6 +3,7 @@ using Xunit;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
+using Xunit.Abstractions;
 
 namespace Selenium.UITests
 {
@@ -14,6 +15,13 @@ namespace Selenium.UITests
         private const string AstronomyUrl = "https://www.timeanddate.com/astronomy/";
         private const string EventsUrl = "https://www.timeanddate.com/calendar/events/";
         private const string HomeTitle = "timeanddate.com";
+
+        private readonly ITestOutputHelper output;
+
+        public SeleniumWebAppShould(ITestOutputHelper output)
+        {
+            this.output = output;
+        }
 
         [Fact]
         [Trait("Category", "Smoke")]
@@ -106,22 +114,43 @@ namespace Selenium.UITests
         }
 
         [Fact]
-        public void BeInitiatedFromHomePage_Weather()
+        public void BeInitiatedFromHomePage_Astronomy()
         { 
             using (IWebDriver driver = new ChromeDriver())
             {
                 driver.Navigate().GoToUrl(HomeUrl);
                 DemoHelper.Pause();
 
-                IWebElement weatherNext =
-                    driver.FindElement(By.CssSelector("#main-content > div.main-content-div > div.fixed > div.row > div.four.columns.c-sm > h2 > a"));
-                weatherNext.Click();
-                IWebElement applyLink = driver.FindElement(By.ClassName("t-sq"));
-                applyLink.Click();
+                IWebElement sunAndMoon =
+                    driver.FindElement(By.Name("Sunrise, sunset, moonrise, moonset, eclipse, equinoxes, solstices and moon phases"));
+                sunAndMoon.Click();
+
+                IWebElement moon = driver.FindElement(By.Id("moon"));
+                moon.Click();
                 DemoHelper.Pause();
 
                 Assert.Equal("Astronomy - Sun - Moon - Eclipses", driver.Title);
                 Assert.Equal(AstronomyUrl, driver.Url);
+            }
+        }
+
+        [Fact]
+        public void BeInitiatedFormHomePage_EasyApplication_Prebuilt_Conditions()
+        {
+            using (IWebDriver driver = new ChromeDriver())
+            {
+                driver.Navigate().GoToUrl(HomeUrl);
+                DemoHelper.Pause();
+
+                WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
+                IWebElement addEventsLink =
+                    wait.Until(SeleniumExtras.WaitHelpers.ExpectedConditions.ElementToBeClickable(By.LinkText("Add Events")));
+                addEventsLink.Click();
+
+                DemoHelper.Pause();
+
+                Assert.Equal("Add your own Calendar Events", driver.Title);
+                Assert.Equal(EventsUrl, driver.Url);
             }
         }
 
@@ -132,16 +161,24 @@ namespace Selenium.UITests
             using (IWebDriver driver = new ChromeDriver())
 
             {
-                driver.Navigate().GoToUrl(HomeUrl);
-                DemoHelper.Pause();
+                output.WriteLine($"{DateTime.Now.ToLongTimeString()} Setting implicit wait");
+                driver.Manage().Timeouts().ImplicitWait = new TimeSpan(35);
 
-                IWebElement randomLink =
-                    driver.FindElement(By.PartialLinkText("Add Events"));
-                randomLink.Click();
-                   
+                output.WriteLine($"{DateTime.Now.ToLongTimeString()} Navigating to '{HomeUrl}'");
+                driver.Navigate().GoToUrl(HomeUrl);
+
+                output.WriteLine($"{DateTime.Now.ToLongTimeString()} Finding element");
+
+                //IWebElement randomLink =
+                //    driver.FindElement(By.PartialLinkText("Add Events"));
+                //randomLink.Click();
+
                 WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(5));
                 IWebElement addEventsLink =
                     wait.Until((d) => d.FindElement(By.PartialLinkText("Add Events")));
+
+                output.WriteLine($"{DateTime.Now.ToLongTimeString()} Found element Displayed={addEventsLink.Displayed} Enabled={addEventsLink.Enabled}");
+                output.WriteLine($"{DateTime.Now.ToLongTimeString()} Clicking element");
                 addEventsLink.Click();
 
                 DemoHelper.Pause();
