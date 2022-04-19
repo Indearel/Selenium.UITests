@@ -5,6 +5,7 @@ using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 using Xunit.Abstractions;
 using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace Selenium.UITests
 {
@@ -36,14 +37,27 @@ namespace Selenium.UITests
 
         [Fact]
         [Trait("Category", "Smoke")]
-        public void LoadApplicationPage()
+        public void LoadHomePage()
         {
             using (IWebDriver driver = new ChromeDriver())
             {
 
                 driver.Navigate().GoToUrl(HomeUrl);
-
+                driver.Manage().Window.Maximize();
                 DemoHelper.Pause();
+                driver.Manage().Window.Minimize();
+                DemoHelper.Pause();
+                driver.Manage().Window.Size = new System.Drawing.Size(720, 1280);
+                DemoHelper.Pause();
+                driver.Manage().Window.Position = new System.Drawing.Point(1, 1);
+                DemoHelper.Pause();
+                driver.Manage().Window.Position = new System.Drawing.Point(50, 50);
+                DemoHelper.Pause();
+                driver.Manage().Window.Position = new System.Drawing.Point(100, 100);
+                DemoHelper.Pause();
+                driver.Manage().Window.FullScreen();
+
+                DemoHelper.Pause(5000);
 
                 Assert.Equal(HomeTitle, driver.Title);
                 Assert.Equal(HomeUrl, driver.Url);
@@ -315,8 +329,8 @@ namespace Selenium.UITests
                 Assert.Equal("Poland", country.SelectedOption.Text);
 
                 // Get all the available options
-                foreach(IWebElement option in country.Options)                                                       
-                { 
+                foreach (IWebElement option in country.Options)
+                {
                     output.WriteLine($"Value: {option.GetAttribute("value")} Text: {option.Text}");
                 }
 
@@ -325,6 +339,59 @@ namespace Selenium.UITests
                 DemoHelper.Pause();
                 country.SelectByValue("32");
                 DemoHelper.Pause();
+            }
+        }
+
+        [Fact]
+        public void openANewTab()
+        {
+            using (IWebDriver driver = new ChromeDriver())
+            {
+                driver.Navigate().GoToUrl(HomeUrl);
+                DemoHelper.Pause();
+
+                IWebElement cookieAgree =
+                           driver.FindElement(By.CssSelector("#qc-cmp2-ui > div.qc-cmp2-footer.qc-cmp2-footer-overlay.qc-cmp2-footer-scrolled > div > button.css-47sehv"));
+                cookieAgree.Click();
+
+                driver.FindElement(By.CssSelector("#main-content > div.main-content-div > div.fixed > div.flex-grid > div.four.columns.c-cc.med-6 > div > div > ul:nth-child(4) > li:nth-child(1) > a")).SendKeys(Keys.Control + "t");
+                driver.SwitchTo().Window(driver.WindowHandles.Last());
+                driver.Navigate().GoToUrl("https://www.timeanddate.com/stopwatch/");
+                DemoHelper.Pause();
+
+                Assert.EndsWith("/stopwatch/", driver.Url);
+            }
+        }
+
+        [Fact]
+        public void changeHomeLocation()
+            
+        {
+            using (IWebDriver driver = new ChromeDriver())
+            {
+                driver.Navigate().GoToUrl(HomeUrl);
+                DemoHelper.Pause();
+
+                IWebElement cookieAgree =
+                           driver.FindElement(By.CssSelector("#qc-cmp2-ui > div.qc-cmp2-footer.qc-cmp2-footer-overlay.qc-cmp2-footer-scrolled > div > button.css-47sehv"));
+                cookieAgree.Click();
+
+                driver.FindElement(By.Id("chi")).Click();
+                DemoHelper.Pause();
+
+                driver.FindElement(By.Id("ftztxt")).SendKeys("Turku");
+                DemoHelper.Pause();
+
+                driver.FindElement(By.XPath("xpath=//span[contains(.,'Turku')]", InnerText)).Click();
+                DemoHelper.Pause();
+
+                driver.FindElement(By.Id("tzq_save")).Click();
+                DemoHelper.Pause();
+
+                IWebElement city = 
+                    driver.FindElement(By.CssSelector("#main-content > div.main-content-div > div.fixed > div.flex-grid > div.four.columns.c-wc.med-6 > div > div.rd-inner > p:nth-child(3) > a"));
+                
+                Assert.Equal("Turku, Finland", city.Text);
             }
         }
     }

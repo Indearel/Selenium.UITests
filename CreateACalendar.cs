@@ -33,7 +33,6 @@ namespace Selenium.UITests
                 Assert.Equal("Advanced Calendar Creator", driver.Title);
                 Assert.Equal(CustomCalendarUrl, driver.Url);
             }
-
         }
     }
 }
