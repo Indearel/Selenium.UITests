@@ -6,6 +6,10 @@ using OpenQA.Selenium.Support.UI;
 using Xunit.Abstractions;
 using System.Collections.ObjectModel;
 using System.Linq;
+using ApprovalTests.Reporters;
+using ApprovalTests.Reporters.Windows;
+using System.IO;
+using ApprovalTests;
 
 namespace Selenium.UITests
 {
@@ -382,7 +386,7 @@ namespace Selenium.UITests
                 driver.FindElement(By.Id("ftztxt")).SendKeys("Turku");
                 DemoHelper.Pause();
 
-                driver.FindElement(By.XPath("xpath=//span[contains(.,'Turku')]", InnerText)).Click();
+                driver.FindElement(By.XPath("xpath=//span[contains(.,'Turku')]")).Click();
                 DemoHelper.Pause();
 
                 driver.FindElement(By.Id("tzq_save")).Click();
@@ -392,6 +396,27 @@ namespace Selenium.UITests
                     driver.FindElement(By.CssSelector("#main-content > div.main-content-div > div.fixed > div.flex-grid > div.four.columns.c-wc.med-6 > div > div.rd-inner > p:nth-child(3) > a"));
                 
                 Assert.Equal("Turku, Finland", city.Text);
+            }
+        }
+
+        [Fact]
+        [UseReporter(typeof(BeyondCompareReporter))]
+        public void RenderAboutPage()
+        {
+            using (IWebDriver driver = new ChromeDriver())
+            {
+                driver.Navigate().GoToUrl(AboutUrl);
+                DemoHelper.Pause();
+
+                ITakesScreenshot takesScreenshot = (ITakesScreenshot)driver;
+
+                Screenshot screenshot = takesScreenshot.GetScreenshot();
+
+                screenshot.SaveAsFile("aboutPage.jpg", ScreenshotImageFormat.Jpeg);
+
+                FileInfo screenshotFile = new FileInfo("aboutPage.jpg");
+
+                Approvals.Verify(screenshotFile);
             }
         }
     }
